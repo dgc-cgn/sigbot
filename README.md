@@ -1,2 +1,2 @@
 # sigbot
-Signature Bot
+Signature Bot for Let's Sign and Verify
