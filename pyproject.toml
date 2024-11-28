@@ -6,10 +6,22 @@ authors = ["trbouma <trbouma@gmail.com>"]
 license = "GNU"
 readme = "README.md"
 
+[tool.poetry.scripts]
+sigbot = "sigbot.cli:cli"
+
+
+
 [tool.poetry.dependencies]
 python = "3.10.4"
 fastapi = "^0.115.5"
 uvicorn = "^0.32.1"
+cryptography = "^43.0.3"
+pikepdf = "^9.4.2"
+endesive = "^2.17.3"
+pyhanko = "^0.25.3"
+click = "^8.1.7"
+pypdf = "^5.1.0"
+python-dateutil = "^2.9.0.post0"
 
 
 [build-system]
