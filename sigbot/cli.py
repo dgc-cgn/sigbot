@@ -85,9 +85,9 @@ def verify(pdf, pem, domain):
         click.echo(f"\nSigning Public Key from Website: {domain} \n {pubkey_from_url}")
         hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
         if pem_key==pubkey_from_url:
-            click.echo(f"VERIFIED!!! The signed document is issued from {domain}. This document can be TRUSTED!!! \n")
+            click.echo(f"VERIFIED!!! The signed document is issued from {domain}. \nThis document CAN BE TRUSTED as being issued by {domain}!!! \n")
         else:
-            click.echo(f"WARNING!!! The signed document is NOT issued from {domain}! While this document has not been altered since being signed, this document SHOULD NOT BE NECESSARILY TRUSTED as being issued by {domain}!!!\n")
+            click.echo(f"WARNING!!! The signed document is NOT issued from {domain}! \nWhile this document has not been altered since being signed, this document SHOULD NOT BE TRUSTED as being issued by {domain}!!!\n")
 
 @click.command(help="Extract signatures")
 @click.argument('pdf', default="data/doc-signed.pdf")
