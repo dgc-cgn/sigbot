@@ -1,5 +1,7 @@
 # Setup
 
+Clone this repo. 
+
 Get your private key from your website. If you are using nginx and do a certificate install you will see this for your `<domain name>`
 
 ```
