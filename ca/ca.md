@@ -1,0 +1,1 @@
+Certificate authority data goes in this folder
