@@ -9,9 +9,9 @@ Let's build a program to enable the widescale adoption of digital signing and ve
 ![Logo](./assets/SignVerify-logo.png)
 
 
-This program implements [DEC-03](https://github.com/dgc-cgn/DEC/blob/main/challenges/dec-03.md) and is named after the inspirational success of [Let's Encrypt](https://letsencrypt.org/), a free service provided by the [Internet Security Research Group (ISRG)](https://www.abetterinternet.org/). This program was originally entitled **Domain Name Signature Provider (DNSP) Program** but we'll use the friendlier title of **Let's Sign and Verify**.
+This program implements [DEC-03](https://github.com/dgc-cgn/DEC/blob/main/challenges/dec-03.md) and takes after the inspirational success of [Let's Encrypt](https://letsencrypt.org/), a free service provided by the [Internet Security Research Group (ISRG)](https://www.abetterinternet.org/). This program, originally entitled **Domain Name Signature Provider (DNSP) Program** is now called **Let's Sign and Verify**.
 
-The **sigbot** utility is inspired by [certbot](https://github.com/certbot), a utility built by the [Electron Frontier Foundation](https://www.eff.org/) to make it easy to deploy Let's Encrypt certificates. The vision for sigbot is to enable a Let's Encrypt certificate issued to a website to digitally sign and verify authoritative documents. The main area of focus is digitally signing and verifying PDF documents because PDFs are the most popular digital and printable formats for authoritative documents. Unfortunately, despite their authoritative nature, they are still hard to digitally sign and even harder to verify on a global basis.
+
 
 If we achieve our goal, anyone will be able to verify the authenticity of a digitally signed PDF simply by retrieving the public key of the website owner has claimed to have signed the document. It will become just as easy a secure `https` connection. And no changes are required on the website!
 
@@ -31,6 +31,6 @@ This approach is not intended to replace certificate authorities but rather to c
 
 The command line utility **sigbot** is currently under development. Just as **certbot** brought secure websites to everyone, the hope is that **sigbot** will bring **verifiable PDFs** to everyone.
 
+The **sigbot** utility is inspired by [certbot](https://github.com/certbot), a utility built by the [Electron Frontier Foundation](https://www.eff.org/) to make it easy to deploy Let's Encrypt certificates. The vision for sigbot is to enable a Let's Encrypt certificate issued to a website to digitally sign and verify authoritative documents. The main area of focus is digitally signing and verifying PDF documents because PDFs are the most popular digital and printable formats for authoritative documents. Unfortunately, despite their authoritative nature, they are still hard to digitally sign and even harder to verify on a global basis.
 
-
-Installatin and Setup instructions (without warranty) are being developed here: [INSTALL](INSTALL.md) and [SETUP](SETUP.MD)
+Installation and Setup instructions (without warranty) are being developed here: [INSTALL](INSTALL.md) and [SETUP](SETUP.MD)
