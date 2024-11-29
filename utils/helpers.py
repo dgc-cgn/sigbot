@@ -172,7 +172,7 @@ def pdf_verify_with_domain(pdf_to_verify, domain):
 
 
 def pdf_verify(pdf_to_verify, pem_to_use, domain):
-
+    msg_out = f"Domain to verify: {domain}"
     print(f"Domain to verify: {domain}")
     tls_pubkey = get_tls_public_key(domain)
     tls_cert = get_tls_certificate(domain)
@@ -207,8 +207,8 @@ def pdf_verify(pdf_to_verify, pem_to_use, domain):
         sig_check = pdf.verify(data, trusted_cert_pems )     
         # print(sig_check) 
         if sig_check ==[]:
-            raise Exception("\nWARNING!!! This document is not signed or has been altered since signing.\nTHIS DOCUMENT MAY BE FRAUDULENT. DO NOT TRUST!!!\n")
-            # print("something is awry!")  
+            msg_out ="\nWARNING!!! This document is not signed or has been altered since signing.\nTHIS DOCUMENT MAY BE FRAUDULENT. DO NOT TRUST!!!\n"
+            return msg_out 
         try:
             for (hashok, signatureok, certok) in pdf.verify(
                 data, trusted_cert_pems ):
@@ -216,13 +216,14 @@ def pdf_verify(pdf_to_verify, pem_to_use, domain):
                 print("signature ok?", signatureok)
                 print("hash ok?", hashok)
                 if not certok:
-                    print("\nADVISORY!!! The certificate used to sign this document is not in a trust registry. This document may trusted if the public key used to sign this document originates from the issuing website. Checking this now...")
+                    msg_out = "\nADVISORY!!! The certificate used to sign this document is not in a trust registry known by this site. However, this document CAN BE TRUSTED if the public key used to sign this document is the SAME as what originates from the issuing website. Checking this now..."
                 else:    
-                    print("Signing certificate is trusted.", certok)
+                    print("Signing certificate is trusted by this site.", certok)
+                    msg_out = "Document signing certificate is trusted by this site."
         except:
             print("errors")
 
-
+    return msg_out
 
 def create_temporary_certificate(public_key_pem):
     """
