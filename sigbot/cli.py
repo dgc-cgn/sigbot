@@ -65,7 +65,7 @@ def sign(pdf, p12):
 @click.command(help="Verify pdf file")
 @click.argument('pdf', default="data/doc-signed.pdf")
 @click.option('--pem','-p', default="ca/root/docsign.pem")
-@click.option('--domain','-d', default="openproof.org")
+@click.option('--domain','-d', default="verify.openproof.org")
 def verify(pdf, pem, domain):
    
     click.echo(f"verify {pdf} with {domain}")
@@ -80,14 +80,14 @@ def verify(pdf, pem, domain):
         certificate = signature.certificate
         raw_key_bytes = certificate.subject_public_key_info.public_key
         pem_key = raw_ec_public_key_to_pem(raw_key_bytes)
-        click.echo(f"\nSigning Public Key from Document \n {pem_key}")
+        click.echo(f"\nSigning Public Key from Document \n\n {pem_key}")
         pubkey_from_url = get_tls_public_key(domain).decode()
-        click.echo(f"\nSigning Public Key from Website: {domain} \n {pubkey_from_url}")
+        click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
         hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
         if pem_key==pubkey_from_url:
-            click.echo(f"VERIFIED!!! The signed document is issued from {domain}. \nThis document CAN BE TRUSTED as being issued by {domain}!!! \n")
+            click.echo(f"VERIFIED!!! This document is signed by {domain}. \nThis document CAN BE TRUSTED as being verified by: {domain}!!! \n")
         else:
-            click.echo(f"WARNING!!! The signed document is NOT issued from {domain}! \nWhile this document has not been altered since being signed, this document SHOULD NOT BE TRUSTED as being issued by {domain}!!!\n")
+            click.echo(f"ADVISORY!!! The signed document is NOT verified by {domain}! \nWhile this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!\n")
 
 @click.command(help="Extract signatures")
 @click.argument('pdf', default="data/doc-signed.pdf")

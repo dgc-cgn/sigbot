@@ -207,7 +207,7 @@ def pdf_verify(pdf_to_verify, pem_to_use, domain):
         sig_check = pdf.verify(data, trusted_cert_pems )     
         # print(sig_check) 
         if sig_check ==[]:
-            raise Exception("\nWARNING!!! This document is not signed or has been altered since signing. DO NOT TRUST!!!\n")
+            raise Exception("\nWARNING!!! This document is not signed or has been altered since signing.\nTHIS DOCUMENT MAY BE FRAUDULENT. DO NOT TRUST!!!\n")
             # print("something is awry!")  
         try:
             for (hashok, signatureok, certok) in pdf.verify(
