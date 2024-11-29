@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-ca/root/*
+ca/root/privkey.pem
 ca/root-copy/*
 data/doc-signed.pdf
 .DS_Store/*
