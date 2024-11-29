@@ -27,7 +27,7 @@ Create a certificate signing request
 ```
 openssl req -new -key privkey.pem -out request.csr
 ```
-DFDSFKJSFSJFSJFLSK
+
 Create a `docsign.cnf' file with the following contents
 
 ```
@@ -54,7 +54,7 @@ extendedKeyUsage = critical, emailProtection, codeSigning
 Generate the doc signing certificate. Don't worry about the warnings
 
 ```
-openssl req -x509 -days 365 -key privkey.pem -in request.csr -out docsign.pem -config docsign.cnf -extensions v3_ca
+openssl req -x509 -days 365 -key privkey.pem -in request.csr -out docsign.pem -config docsign.cnf -extensions v3_ca -copy_extensions copy
 ```
 
 Create the passworkd protected `pkcs` file. Don't forget your password!

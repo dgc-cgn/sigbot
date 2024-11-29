@@ -166,3 +166,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 .DS_Store
+ca/root/docsign.cnf
+ca/root/docsign.p12
+ca/root/docsign.pem
+ca/root/request.csr
