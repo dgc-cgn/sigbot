@@ -4,7 +4,7 @@
 
 Still relying on unverified pdfs and screenshots as proofs? Let's fix that!
 
-Let's build a program to enable the widescale adoption of digital signing and verification of documents on the internet. And let's use technology that you already have! 
+Let's build a program to enable the widescale adoption of digital signing and verification of PDF documents on the internet. And let's use technology that you already have! 
 
 ![Logo](./assets/SignVerify-logo.png)
 
