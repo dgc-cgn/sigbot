@@ -45,7 +45,7 @@ Installation and Setup instructions (without warranty) are being developed here:
 
 ## Official Documentation
 
-### OfficalDocs
+### OfficialDocs
 
 We are also proposing to develop a technical standard specification with the title **OfficialDocs**. This standard would set out the requirements for any organization wishing to produce PDF documents in a secure and trusted manner such they can be relied on as official documentation. 
 
