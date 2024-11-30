@@ -8,6 +8,7 @@ from pypdf import PdfReader
 
 from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey, SECP256R1
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+from utils.helpers import convert_certificate_to_pem
 
 class AttrClass:
     """Abstract helper class"""
@@ -211,6 +212,28 @@ def raw_ec_public_key_to_pem(raw_key_bytes):
 
     return pem.decode("utf-8")
 
+def parse_certificate(certificate):
+    
+    print(certificate)
+    print(certificate.version)
+    print(certificate.serial_number)
+    print(certificate.common_name)
+    print(f"Signer's certificate: {certificate}")
+    print(f"  - not before: {certificate.validity.not_before}")
+    print(f"  - not after: {certificate.validity.not_after}")
+    print(f"  - issuer: {certificate.issuer}")
+    print(f"  - issuer country: {certificate.issuer.country_name}")
+    print(f"  - issuer organization name: {certificate.issuer.organization_name}")
+    print(f"  - issuer organization unit: {certificate.issuer.organizational_unit_name}")
+    print(f"  - issuer common_name: {certificate.issuer.common_name}")
+    subject = certificate.subject
+    print(f"  - subject: {subject}")
+    print(f"    - subject common name: {subject.common_name}")
+    print(f"    - subject organization identifier: {subject.organization_identifier}")
+    print(f"    - serial number: {subject.serial_number}")
+    
+    
+    return
 
 
 

@@ -2,9 +2,11 @@
 
 ## Overview
 
-Still relying on unverified pdfs and screenshots as proofs? Let's fix that!
+Still relying on unverified pdfs and screenshots as official documents? Let's fix that!
 
-Let's build a program to enable the widescale adoption of digital signing and verification of PDF documents on the internet. And let's use technology that you already have! 
+Let's build a program to enable the widescale adoption of digital signing and verification of PDF documents on the internet. And let's use technology that we already have! 
+
+Make PDF docs [#OfficialDocs](#officaldocs)!
 
 ![Logo](./assets/SignVerify-logo.png)
 
@@ -40,3 +42,21 @@ The command line utility **sigbot** is currently under development. Just as **ce
 The **sigbot** utility is inspired by [certbot](https://github.com/certbot), a utility built by the [Electron Frontier Foundation](https://www.eff.org/) to make it easy to deploy Let's Encrypt certificates. The vision for sigbot is to enable a Let's Encrypt certificate issued to a website to digitally sign and verify authoritative documents. The main area of focus is digitally signing and verifying PDF documents because PDFs are the most popular digital and printable formats for authoritative documents. Unfortunately, despite their authoritative nature, they are still hard to digitally sign and even harder to verify on a global basis.
 
 Installation and Setup instructions (without warranty) are being developed here: [INSTALL](INSTALL.md) and [SETUP](SETUP.MD)
+
+## Official Documentation
+
+### OfficalDocs
+
+We are also proposing to develop a technical standard specification with the title **OfficialDocs**. This standard would set out the requirements for any organization wishing to produce PDF documents in a secure and trusted manner such they can be relied on as official documentation. 
+
+## Background
+
+Official documentation refers to formally prepared, authorized, and distributed materials that provide detailed information, instructions, or records about a specific topic, process, product, or system. It is typically created to ensure accuracy, consistency, and compliance with organizational or regulatory standards and serves as an authoritative source for reference, guidance, or verification.
+
+Official documentation differs from verifiable credentials and identity documents in purpose, format, and usage. Verifiable credentials are digitally signed, tamper-proof records that attest to an individual's qualifications, achievements, or affiliations, typically stored in digital wallets and easily validated through cryptographic methods. They are designed to enhance trust and efficiency in digital transactions while offering more privacy and control over personal data than traditional documents.
+
+Official documentation encompasses a broader range of physical or electronic records, such as letters of acceptance or enrollment, created to document specific transactions, agreements, or achievements. While they may include identifying details, their primary function is not identity verification but to serve as evidence for specific events, statuses, or approvals. Unlike verifiable credentials, official documents often rely on manual validation and are less flexible in terms of interoperability and privacy controls.
+
+Official documentation comes in various forms, each serving specific purposes based on the context. Letters of Enrollment confirm an individual's registration in an institution, often used for visa applications, financial aid, or employment verification. Letters of Acceptance formally acknowledge an individual’s acceptance into a program, institution, or job role, commonly required for onboarding or immigration processes. Certificates of Completion verify that a course, training, or program has been successfully finished, often needed for professional qualifications or further education. Reference Letters provide official endorsements of an individual’s qualifications, skills, or character, typically requested for academic or professional opportunities. Other examples include Identification Documents, which verify personal details like identity or citizenship, and Official Reports, which document findings, performance, or compliance within an organization. Each type of documentation is vital in maintaining transparency, authenticity, and a record of formal engagements.
+
+

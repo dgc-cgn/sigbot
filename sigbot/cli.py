@@ -10,7 +10,8 @@ from utils.helpers import   (get_tls_public_key,
                             )
 
 from utils.getpdfsignatures import(get_pdf_signatures,
-                                   raw_ec_public_key_to_pem
+                                   raw_ec_public_key_to_pem,
+                                   parse_certificate
                             
                             )
 
@@ -65,7 +66,7 @@ def sign(pdf, p12):
 @click.command(help="Verify pdf file")
 @click.argument('pdf', default="data/doc-signed.pdf")
 @click.option('--pem','-p', default="ca/root/docsign.pem")
-@click.option('--domain','-d', default="verify.openproof.org")
+@click.option('--domain','-d', default='verify.openproof.org')
 def verify(pdf, pem, domain):
    
     click.echo(f"verify {pdf} with {domain}")
@@ -78,6 +79,10 @@ def verify(pdf, pem, domain):
     # pdf_verify_with_domain(pdf,domain)
     for signature in get_pdf_signatures(pdf):
         certificate = signature.certificate
+        # parse_certificate(certificate=certificate)
+        certificate_common_name = certificate.issuer.common_name
+        click.echo(f"certificate issuer common name: {certificate_common_name}")
+       
         raw_key_bytes = certificate.subject_public_key_info.public_key
         pem_key = raw_ec_public_key_to_pem(raw_key_bytes)
         click.echo(f"\nSigning Public Key from Document \n\n {pem_key}")
