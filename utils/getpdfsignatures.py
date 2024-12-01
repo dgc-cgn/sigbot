@@ -10,6 +10,9 @@ from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey,
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from utils.helpers import convert_certificate_to_pem
 
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+
 class AttrClass:
     """Abstract helper class"""
 
@@ -154,7 +157,11 @@ def parse_pkcs7_signatures(signature_data: bytes):
 def get_pdf_signatures(filename):
     """Parse PDF signatures"""
     reader = PdfReader(filename)
-    fields = reader.get_fields().values()
+    try:
+        fields = reader.get_fields().values()
+    except:
+        raise Exception("Could not find signatures")
+    
     signature_field_values = [
         f.value for f in fields if f.field_type == '/Sig']
     for v in signature_field_values:
@@ -235,8 +242,21 @@ def parse_certificate(certificate):
     
     return
 
-
-
+def get_pem_public_key_from_certificate(certificate):
+    pubkey_data = certificate.subject_public_key_info.public_key
+        
+    if isinstance(pubkey_data, bytes):
+        public_key_pem = raw_ec_public_key_to_pem(pubkey_data)
+        
+    else:
+        pem_data ="not supported"
+        # print(f"modulus: {pubkey_data.modulus}, \nexponent: {pubkey_data.public_exponent}")
+        public_key = rsa.RSAPublicNumbers(pubkey_data.public_exponent, pubkey_data.modulus).public_key()
+        public_key_pem = public_key.public_bytes(
+            encoding=Encoding.PEM,
+            format=PublicFormat.SubjectPublicKeyInfo
+            ).decode()
+    return public_key_pem
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

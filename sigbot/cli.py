@@ -72,7 +72,7 @@ def verify(pdf, pem, domain):
    
     click.echo(f"verify {pdf} with {domain}")
     try:
-        pdf_verify(pdf,pem,domain)
+        pdf_verify(pdf,pem)
     except Exception as e:
         click.echo(e)
         return
@@ -86,7 +86,7 @@ def verify(pdf, pem, domain):
         public_key_pem = get_pem_public_key_from_certificate(certificate)
         click.echo(f"pem data: {public_key_pem}")
 
-        click.echo(f"\nSigning Public Key from Document \n\n {public_key_pem}")
+        click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
         pubkey_from_url = get_tls_public_key(domain).decode()
         click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
         hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))

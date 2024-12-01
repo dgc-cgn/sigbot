@@ -171,13 +171,14 @@ def pdf_verify_with_domain(pdf_to_verify, domain):
     
 
 
-def pdf_verify(pdf_to_verify, pem_to_use, domain):
-    msg_out = f"Domain to verify: {domain}"
-    print(f"Domain to verify: {domain}")
-    tls_pubkey = get_tls_public_key(domain)
-    tls_cert = get_tls_certificate(domain)
+def pdf_verify(pdf_to_verify, pem_to_use):
+    msg_out = f"Issuer to verify"
+    # print(f"Domain to verify: {domain}")
+    # tls_pubkey = get_tls_public_key(domain)
+    # tls_cert = get_tls_certificate(domain)
    
-    pem_certificate = tls_cert.public_bytes(encoding=Encoding.PEM).decode("utf-8")
+    # 
+    # pem_certificate = tls_cert.public_bytes(encoding=Encoding.PEM).decode("utf-8")
     # print(f"TLS Public Key and Cert: {tls_pubkey} {tls_cert} {pem_to_use} {pem_certificate}")
    
     
