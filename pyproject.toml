@@ -23,6 +23,7 @@ click = "^8.1.7"
 pypdf = "^5.1.0"
 python-dateutil = "^2.9.0.post0"
 python-multipart = "^0.0.18"
+httpx = "^0.28.0"
 
 
 [build-system]

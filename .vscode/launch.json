@@ -13,6 +13,14 @@
             "args": [
                 "${command:pickArgs}"
             ]
+        },
+        {
+            "name": "Python Debugger: Again Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": "${command:pickArgs}"
         }
     ]
 }

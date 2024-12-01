@@ -1,5 +1,8 @@
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, HttpUrl
+import httpx
+import os
 from binascii import hexlify
 
 from utils.helpers import   (get_tls_public_key, 
@@ -18,6 +21,14 @@ from utils.getpdfsignatures import(get_pdf_signatures,
                             )
 # Initialize the FastAPI application
 app = FastAPI()
+
+# Define a request model for URL input
+class PDFUploadRequest(BaseModel):
+    url: HttpUrl
+
+# Directory to save uploaded PDFs
+UPLOAD_DIR = "uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Define a root endpoint
 @app.get("/")
@@ -56,7 +67,41 @@ async def upload_pdf(file: UploadFile = File(...),
     except:
         msg_out = "Could not verify"
 
-    
-        
 
     return {"message": f"{msg_out} {file.filename} at: {verifier}"}
+
+@app.post("/upload-pdf-from-url/")
+async def upload_pdf_from_url(request: PDFUploadRequest):
+    """
+    Downloads a PDF from the given URL, validates it, and saves it locally.
+
+    Args:
+        request (PDFUploadRequest): A request object containing the URL of the PDF.
+
+    Returns:
+        dict: A response indicating success or failure.
+    """
+    pdf_url = str(request.url)  # Convert HttpUrl to a string
+
+    try:
+        # Download the PDF
+        async with httpx.AsyncClient() as client:
+            response = await client.get(pdf_url)
+            response.raise_for_status()
+
+        # Check if the content type indicates a PDF
+        content_type = response.headers.get("Content-Type", "").lower()
+        if not content_type.startswith("application/pdf"):
+            raise HTTPException(status_code=400, detail=f"URL does not point to a valid PDF file. Detected Content-Type: {content_type}")
+
+        # Save the PDF to the local directory
+        filename = os.path.join(UPLOAD_DIR, os.path.basename(pdf_url))
+        with open(filename, "wb") as f:
+            f.write(response.content)
+
+        return {"message": "PDF successfully uploaded", "filename": filename}
+
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=400, detail=f"Failed to download PDF: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
