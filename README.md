@@ -6,7 +6,7 @@ Still relying on unverified pdfs and screenshots as official documents? Let's fi
 
 Let's build a program to enable the widescale adoption of digital signing and verification of PDF documents on the internet. And let's use technology that we already have! 
 
-Make PDF docs [#OfficialDocs](#officaldocs)!
+Make PDF docs [#OfficialDocs](#official-documentation)!
 
 ![Logo](./assets/SignVerify-logo.png)
 
@@ -35,7 +35,7 @@ This approach effectively aligns the trust model for document verification with 
 
 This approach is not intended to replace certificate authorities but rather to complement them by providing website owners with additional options for verifying PDF documents. In many scenarios, all that is required is to confirm that a PDF document genuinely originates from a specific website. By leveraging the website’s existing TLS certificate, this method offers a straightforward, open-source, and non-proprietary solution for verifying the authenticity of signed PDFs. Instead of relying solely on a certificate authority to establish trust, this approach enables users to directly validate a document's origin through the public key associated with the owner's website. This democratizes document verification, making it more accessible and practical while maintaining a robust chain of trust rooted in the website's control of its TLS certificate.
 
-# sigbot
+## sigbot
 
 The command line utility **sigbot** is currently under development. Just as **certbot** brought secure websites to everyone, the hope is that **sigbot** will bring **verifiable PDFs** to everyone.
 
