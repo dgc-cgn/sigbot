@@ -72,28 +72,33 @@ def verify(pdf, pem, domain):
    
     click.echo(f"verify {pdf} with {domain}")
     try:
-        pdf_verify(pdf,pem)
+        all_sigok, all_hashok = pdf_verify(pdf,pem)
     except Exception as e:
         click.echo(e)
         return
 
-    # pdf_verify_with_domain(pdf,domain)
-    for signature in get_pdf_signatures(pdf):
-        certificate = signature.certificate
-        # parse_certificate(certificate=certificate)
-        certificate_common_name = certificate.issuer.common_name
-        click.echo(f"certificate issuer common name: {certificate_common_name}")
-        public_key_pem = get_pem_public_key_from_certificate(certificate)
-        click.echo(f"pem data: {public_key_pem}")
+    if all_sigok and all_hashok:
+        click.echo("All signatures and hashes ok!")
+        
+    try:
+        for signature in get_pdf_signatures(pdf):
+            certificate = signature.certificate
+            # parse_certificate(certificate=certificate)
+            certificate_common_name = certificate.issuer.common_name
+            click.echo(f"certificate issuer common name: {certificate_common_name}")
+            public_key_pem = get_pem_public_key_from_certificate(certificate)
+            click.echo(f"pem data: {public_key_pem}")
 
-        click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
-        pubkey_from_url = get_tls_public_key(domain).decode()
-        click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
-        hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
-        if public_key_pem==pubkey_from_url:
-            click.echo(f"VERIFIED!!! This document is signed by {domain}. \nThis document CAN BE TRUSTED as being verified by: {domain}!!! \n")
-        else:
-            click.echo(f"ADVISORY!!! The signed document is NOT verified by {domain}! \nWhile this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!\n")
+            click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
+            pubkey_from_url = get_tls_public_key(domain).decode()
+            click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
+            hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
+            if public_key_pem==pubkey_from_url:
+                click.echo(f"VERIFIED!!! This document is signed by {domain}. \nThis document CAN BE TRUSTED as being verified by: {domain}!!! \n")
+            else:
+                click.echo(f"ADVISORY!!! The signed document is NOT verified by {domain}! \nWhile this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!\n")
+    except Exception as e:
+        click.echo(f"{e}")
 
 @click.command(help="Extract signatures")
 @click.argument('pdf', default="data/doc-signed.pdf")

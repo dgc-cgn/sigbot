@@ -161,6 +161,7 @@ def get_pdf_signatures(filename):
         fields = reader.get_fields().values()
     except:
         raise Exception("Could not find signatures")
+        return
     
     signature_field_values = [
         f.value for f in fields if f.field_type == '/Sig']
