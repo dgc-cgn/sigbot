@@ -172,6 +172,8 @@ def pdf_verify_with_domain(pdf_to_verify, domain):
 
 
 def pdf_verify(pdf_to_verify, pem_to_use):
+    all_hashok = True
+    all_sigok = True
     msg_out = f"Issuer to verify"
     # print(f"Domain to verify: {domain}")
     # tls_pubkey = get_tls_public_key(domain)
@@ -216,6 +218,8 @@ def pdf_verify(pdf_to_verify, pem_to_use):
                 print("*" * 10, "signature no:", no)
                 print("signature ok?", signatureok)
                 print("hash ok?", hashok)
+                all_hashok = all_hashok and hashok
+                all_sigok = all_sigok and signatureok
                 if not certok:
                     msg_out = "\nADVISORY!!! The certificate used to sign this document is not in a trust registry known by this site. However, this document CAN BE TRUSTED if the public key used to sign this document is the SAME as what originates from the issuing website. Checking this now..."
                 else:    
@@ -224,7 +228,7 @@ def pdf_verify(pdf_to_verify, pem_to_use):
         except:
             print("errors")
 
-    return msg_out
+    return all_sigok, all_hashok
 
 def create_temporary_certificate(public_key_pem):
     """
