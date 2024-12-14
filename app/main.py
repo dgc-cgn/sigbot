@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, HttpUrl
 import httpx
@@ -21,6 +22,9 @@ from utils.getpdfsignatures import(get_pdf_signatures,
                             )
 # Initialize the FastAPI application
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/trustlists", StaticFiles(directory="trustlists"), name="trustlists")
 
 # Define a request model for URL input
 class PDFUploadRequest(BaseModel):
@@ -83,6 +87,8 @@ async def upload_pdf_from_url(request: PDFUploadRequest):
     """
     pdf_url = str(request.url)  # Convert HttpUrl to a string
 
+    replace_url = pdf_url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
+    # print(replace_url)
     try:
         # Download the PDF
         async with httpx.AsyncClient() as client:
@@ -91,8 +97,7 @@ async def upload_pdf_from_url(request: PDFUploadRequest):
 
         # Check if the content type indicates a PDF
         content_type = response.headers.get("Content-Type", "").lower()
-        if not content_type.startswith("application/pdf"):
-            raise HTTPException(status_code=400, detail=f"URL does not point to a valid PDF file. Detected Content-Type: {content_type}")
+
 
         # Save the PDF to the local directory
         filename = os.path.join(UPLOAD_DIR, os.path.basename(pdf_url))
