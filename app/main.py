@@ -39,6 +39,17 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 def read_root():
     return {"message": "Welcome to Sigbot!"}
 
+@app.get("/get-public-key/")
+async def get_public_key(domain: str ):
+    hex_pubkey = "Not known"
+    try:
+        pubkey_from_url = get_tls_public_key(domain)
+        hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url.decode()))
+    except:
+        hex_pubkey = "could not retrieve"
+
+    return {"domain": domain, "publickey": hex_pubkey}
+
 
 @app.post("/verify-pdf/")
 async def upload_pdf(file: UploadFile = File(...),
