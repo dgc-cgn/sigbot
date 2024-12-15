@@ -35,6 +35,15 @@ This approach effectively aligns the trust model for document verification with 
 
 This approach is not intended to replace certificate authorities but rather to complement them by providing website owners with additional options for verifying PDF documents. In many scenarios, all that is required is to confirm that a PDF document genuinely originates from a specific website. By leveraging the website’s existing TLS certificate, this method offers a straightforward, open-source, and non-proprietary solution for verifying the authenticity of signed PDFs. Instead of relying solely on a certificate authority to establish trust, this approach enables users to directly validate a document's origin through the public key associated with the owner's website. This democratizes document verification, making it more accessible and practical while maintaining a robust chain of trust rooted in the website's control of its TLS certificate.
 
+## The Four Steps to Trust
+
+There are four steps to trusting a PDF. 
+
+1. **Hash is OK:** This means the document has not been altered since it was issued.
+2. **Signature is OK:** This means the signature applied to the hash is valid.
+3. **Public Key is OK:** This means the public key used in signature is the same as the originating domain.
+4. **Authorization is OK:** This means the domain is authorized according to a specified trust list which reflects a governance outcome.
+
 ## sigbot
 
 The command line utility **sigbot** is currently under development. Just as **certbot** brought secure websites to everyone, the hope is that **sigbot** will bring **verifiable PDFs** to everyone.

@@ -16,6 +16,12 @@ You want the ```/etc/letsencrypt/live/<domain name>/privkey.pem```
 Create a `ca/root` subdirectory
 Copy this file to the `ca/root` directory
 
+An easy way to get the private key is to use the `scp` command. If you are using `nginx' with your domain, you can do this:
+```
+# replace <yourdomain> with your domain address
+scp root@<yourdomain>:/etc/letsencrypt/live/<yourdomain>/privkey.pem .
+```
+
 Go to the `ca/root` directory. This will need to be your current working directory for the next few steps.
 
 
