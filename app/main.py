@@ -1,5 +1,8 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, HttpUrl
 import httpx
@@ -25,6 +28,7 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/trustlists", StaticFiles(directory="trustlists"), name="trustlists")
+templates = Jinja2Templates(directory="templates")
 
 # Define a request model for URL input
 class PDFUploadRequest(BaseModel):
@@ -35,9 +39,10 @@ UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Define a root endpoint
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Sigbot!"}
+@app.get("/",response_class=HTMLResponse)
+def read_root(request: Request):
+    print(request.headers,  )
+    return templates.TemplateResponse( "welcome.html", {"request": request, "title": "Welcome Page", "message": "Welcome to our TrustRoot Application!"})
 
 @app.get("/get-public-key/")
 async def get_public_key(domain: str ):
@@ -49,6 +54,43 @@ async def get_public_key(domain: str ):
         hex_pubkey = "could not retrieve"
 
     return {"domain": domain, "publickey": hex_pubkey}
+
+@app.post("/submit")
+async def submit_pdf(pdf_url:str = Form(...)):
+
+    pdf_url = pdf_url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
+
+    try:
+        # Download the PDF
+        async with httpx.AsyncClient() as client:
+            response = await client.get(pdf_url)
+            response.raise_for_status()
+
+        # Check if the content type indicates a PDF
+        content_type = response.headers.get("Content-Type", "").lower()
+
+
+        # Save the PDF to the local directory
+        filename = os.path.join(UPLOAD_DIR, os.path.basename(pdf_url))
+        with open(filename, "wb") as f:
+            f.write(response.content)
+
+        #return {"message": "PDF successfully uploaded", "filename": filename}
+
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=400, detail=f"Failed to download PDF: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+    
+    pem = "ca/root/docsign.pem"
+    print(filename,pem)
+    try:
+        all_sigok, all_hashok = pdf_verify(filename,pem)
+    except Exception as e:
+        
+        return
+
+    return {"detail": pdf_url, "sigok": all_sigok, "hashok": all_hashok}
 
 
 @app.post("/verify-pdf/")

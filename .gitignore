@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 ca/root/privkey.pem
 ca/root-copy/*
-data/doc-signed.pdf
 .DS_Store/*
 uploads/*
 
