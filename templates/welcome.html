@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>{{ message }}</h1>
+    <p>This is a simple welcome page served by FastAPI of {{ request.base_url }}</p>
+    <form action="/submit" method="post">
+        <label for="pdf_url">Enter PDF URL:</label>
+        <input type="url" id="pdf_url" name="pdf_url" required style="width: 80%; box-sizing: border-box;">
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
