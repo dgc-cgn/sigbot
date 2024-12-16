@@ -15,12 +15,14 @@ from utils.helpers import   (get_tls_public_key,
                             pem_string_to_bytes, 
                             pdf_sign, pdf_verify, 
                             pdf_verify_with_domain, 
-                            extract_signatures_and_public_keys
+                            extract_signatures_and_public_keys,
+                            is_valid_domain
                             
                             )
 
 from utils.getpdfsignatures import(get_pdf_signatures,
-                                   raw_ec_public_key_to_pem
+                                   raw_ec_public_key_to_pem,
+                                   get_pem_public_key_from_certificate
                             
                             )
 # Initialize the FastAPI application
@@ -58,6 +60,8 @@ async def get_public_key(domain: str ):
 @app.post("/submit")
 async def submit_pdf(pdf_url:str = Form(...)):
 
+    out_msg = ""
+    domain = ""
     pdf_url = pdf_url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
 
     try:
@@ -86,11 +90,40 @@ async def submit_pdf(pdf_url:str = Form(...)):
     print(filename,pem)
     try:
         all_sigok, all_hashok = pdf_verify(filename,pem)
+        try:
+            for signature in get_pdf_signatures(filename):
+                certificate = signature.certificate
+                # parse_certificate(certificate=certificate)
+                certificate_common_name = certificate.issuer.common_name
+                if is_valid_domain(certificate_common_name):
+                    print("THIS IS A VALID DOMAIN NAME")
+                else:
+                    print("NOT A VALID DOMAIN")
+                    
+                domain = certificate_common_name
+                # click.echo(f"certificate issuer common name: {certificate_common_name}")
+                public_key_pem = get_pem_public_key_from_certificate(certificate)
+                # click.echo(f"pem data: {public_key_pem}")
+
+                # click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
+                pubkey_from_url = get_tls_public_key(domain).decode()
+                # click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
+                hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
+                if public_key_pem==pubkey_from_url:
+                    pass
+                    out_msg = f"VERIFIED!!! This document is signed by {domain}.This document CAN BE TRUSTED as being verified by: {domain}!!!"
+                else:
+                    out_msg =f"ADVISORY!!! The signed document is NOT verified by {domain}! While this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!"
+        except Exception as e:
+            print(f"{e}")
+
+
+
     except Exception as e:
         
         return
 
-    return {"detail": pdf_url, "sigok": all_sigok, "hashok": all_hashok}
+    return {"detail": pdf_url, "sigok": all_sigok, "hashok": all_hashok, "domain": domain, "out_msg": out_msg}
 
 
 @app.post("/verify-pdf/")

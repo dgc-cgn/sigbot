@@ -1,4 +1,4 @@
-import ssl, sys, io
+import ssl, sys, io, re
 import socket
 from cryptography.x509 import load_der_x509_certificate
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
@@ -28,6 +28,27 @@ if not logger.hasHandlers():
          
         
 logger.info(f"Function initialized")
+
+
+
+def is_valid_domain(domain):
+    """
+    Validate if a string is a valid domain name.
+
+    Args:
+        domain (str): The domain name to validate.
+
+    Returns:
+        bool: True if the domain is valid, False otherwise.
+    """
+    # Regular expression to match a valid domain name
+    domain_regex = re.compile(
+        r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\."  # Subdomain
+        r"(?!-)(?:[A-Za-z0-9-]{1,63}\.)?"   # Optional second-level domain
+        r"(?!-)[A-Za-z]{2,63}$"             # Top-level domain
+    )
+
+    return bool(domain_regex.match(domain))
 
 def get_tls_public_key(url, port=443):
     # Create an SSL context
