@@ -15,6 +15,6 @@ ENV PATH="/root/.local/bin:$PATH"
 WORKDIR /app
 COPY . .
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev --no-root
+RUN poetry install --only main --no-root
 
 CMD [ "uvicorn","app.main:app", "--host","0.0.0.0","--port","80"] 
