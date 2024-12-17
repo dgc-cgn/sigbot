@@ -44,6 +44,11 @@ There are four steps to trusting a PDF.
 3. **Public Key is OK:** This means the public key used in signature is the same as the originating domain.
 4. **Authorization is OK:** This means the domain is authorized according to a specified trust list which reflects a governance outcome.
 
+1. Document has **Integrity**.
+2. Document **Originates** from an Entity
+3. Entity is **Known**
+4. Entity is **Authorized**
+
 ## sigbot
 
 The command line utility **sigbot** is currently under development. Just as **certbot** brought secure websites to everyone, the hope is that **sigbot** will bring **verifiable PDFs** to everyone.

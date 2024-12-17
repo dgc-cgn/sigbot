@@ -13,5 +13,14 @@
         <input type="url" id="pdf_url" name="pdf_url" required style="width: 80%; box-sizing: border-box;">
         <button type="submit">Submit</button>
     </form>
+    <br>
+    <br>
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <!-- File Upload Input -->
+        <label for="file">Select a PDF FILE:</label>
+        <input type="file" name="file" id="file" required>
+        <!-- Submit Button -->
+        <button type="submit">Upload</button>
+    </form>
 </body>
 </html>

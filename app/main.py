@@ -99,7 +99,7 @@ async def submit_pdf(pdf_url:str = Form(...)):
                     print("THIS IS A VALID DOMAIN NAME")
                 else:
                     print("NOT A VALID DOMAIN")
-                    
+
                 domain = certificate_common_name
                 # click.echo(f"certificate issuer common name: {certificate_common_name}")
                 public_key_pem = get_pem_public_key_from_certificate(certificate)
@@ -126,39 +126,60 @@ async def submit_pdf(pdf_url:str = Form(...)):
     return {"detail": pdf_url, "sigok": all_sigok, "hashok": all_hashok, "domain": domain, "out_msg": out_msg}
 
 
-@app.post("/verify-pdf/")
-async def upload_pdf(file: UploadFile = File(...),
-                     verifier: str = Form(...)):
-    msg_out ="Verify:"
+@app.post("/upload/")
+async def upload_pdf(file: UploadFile = File(...)):
+    
+    out_msg =""
+    domain = ""
+    verifier = 'verify.openproof.org'
     # Check if the uploaded file is a PDF
     if file.content_type != "application/pdf":
         return JSONResponse(status_code=400, content={"message": "File must be a PDF."})
 
     # Save the uploaded file to a specific directory
-    file_location = f"uploads/{file.filename}"
-    with open(file_location, "wb") as f:
+    filename = f"uploads/{file.filename}"
+    with open(filename, "wb") as f:
         f.write(await file.read())
     
+    pem = "ca/root/docsign.pem"
+    print(filename,pem)
     try:
-        msg_out = pdf_verify(file_location,'ca/root/docsign.pem',verifier)
-        for signature in get_pdf_signatures(file_location):
-            certificate = signature.certificate
-            raw_key_bytes = certificate.subject_public_key_info.public_key
-            pem_key = raw_ec_public_key_to_pem(raw_key_bytes)
-            msg_out += f"\nSigning Public Key from Document \n\n {pem_key}"
-            
-            pubkey_from_url = get_tls_public_key(verifier).decode()
-            msg_out +=f"\nSigning Public Key from Website: {verifier} \n\n {pubkey_from_url}"
-            hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
-            if pem_key==pubkey_from_url:
-                msg_out +=f"VERIFIED!!! This document is signed by {verifier}. \nThis document CAN BE TRUSTED as being verified by: {verifier}!!! \n"
-            else:
-                msg_out+=f"ADVISORY!!! The signed document is NOT verified by {verifier}! \nWhile this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {verifier}!!!\n"
-    except:
-        msg_out = "Could not verify"
+        all_sigok, all_hashok = pdf_verify(filename,pem)
+        try:
+            for signature in get_pdf_signatures(filename):
+                certificate = signature.certificate
+                # parse_certificate(certificate=certificate)
+                certificate_common_name = certificate.issuer.common_name
+                if is_valid_domain(certificate_common_name):
+                    print("THIS IS A VALID DOMAIN NAME")
+                else:
+                    print("NOT A VALID DOMAIN")
+
+                domain = certificate_common_name
+                # click.echo(f"certificate issuer common name: {certificate_common_name}")
+                public_key_pem = get_pem_public_key_from_certificate(certificate)
+                # click.echo(f"pem data: {public_key_pem}")
+
+                # click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
+                pubkey_from_url = get_tls_public_key(domain).decode()
+                # click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
+                hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
+                if public_key_pem==pubkey_from_url:
+                    pass
+                    out_msg = f"VERIFIED!!! This document is signed by {domain}.This document CAN BE TRUSTED as being verified by: {domain}!!!"
+                else:
+                    out_msg =f"ADVISORY!!! The signed document is NOT verified by {domain}! While this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!"
+        except Exception as e:
+            print(f"{e}")
 
 
-    return {"message": f"{msg_out} {file.filename} at: {verifier}"}
+
+    except Exception as e:
+        
+        return
+
+
+    return {"detail": filename, "sigok": all_sigok, "hashok": all_hashok, "domain": domain, "out_msg": out_msg}
 
 @app.post("/upload-pdf-from-url/")
 async def upload_pdf_from_url(request: PDFUploadRequest):
