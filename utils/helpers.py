@@ -384,3 +384,11 @@ def extract_signatures_and_public_keys(pdf_path):
         public_keys.append(public_key_pem.decode())
 
     return public_keys
+
+def trust_pdf(pdf: str):
+    """This is the function that does the full trust evalution
+    1. Is the hash valid?
+    2. Is the signature valid?
+    3. Is the public key trusted?
+    4. (Optional) Is the public key authorized?
+    """

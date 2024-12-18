@@ -5,7 +5,8 @@ from utils.helpers import   (get_tls_public_key,
                             pem_string_to_bytes, 
                             pdf_sign, pdf_verify, 
                             pdf_verify_with_domain, 
-                            extract_signatures_and_public_keys
+                            extract_signatures_and_public_keys,
+                            is_valid_domain
                             
                             )
 
@@ -86,17 +87,20 @@ def verify(pdf, pem, domain):
                 # parse_certificate(certificate=certificate)
                 certificate_common_name = certificate.issuer.common_name
                 click.echo(f"certificate issuer common name: {certificate_common_name}")
+                
                 public_key_pem = get_pem_public_key_from_certificate(certificate)
                 click.echo(f"pem data: {public_key_pem}")
 
                 click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
-                pubkey_from_url = get_tls_public_key(domain).decode()
-                click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
-                hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
-                if public_key_pem==pubkey_from_url:
-                    click.echo(f"VERIFIED!!! This document is signed by {domain}. \nThis document CAN BE TRUSTED as being verified by: {domain}!!! \n")
-                else:
-                    click.echo(f"ADVISORY!!! The signed document is NOT verified by {domain}! \nWhile this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!\n")
+                if is_valid_domain(certificate_common_name):
+                    domain = certificate_common_name
+                    pubkey_from_url = get_tls_public_key(domain).decode()
+                    click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
+                    hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
+                    if public_key_pem==pubkey_from_url:
+                        click.echo(f"VERIFIED!!! This document is signed by {domain}. \nThis document CAN BE TRUSTED as being verified by: {domain}!!! \n")
+                    else:
+                        click.echo(f"ADVISORY!!! The signed document is NOT verified by {domain}! \nWhile this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!\n")
         except Exception as e:
             click.echo(f"{e}")
     else:
@@ -111,13 +115,19 @@ def extract(pdf):
     click.echo(f"extract signatures from {pdf}")
     out = extract_signatures_and_public_keys(pdf)
     
-    
+
+@click.command("trust", help="Trust pdf file")
+@click.argument('pdf', default="data/doc-signed.pdf")
+
+def trust(pdf): 
+    click.echo(f"trust {pdf}")   
 
 cli.add_command(info)
 cli.add_command(pubkey)
 cli.add_command(sign)
 cli.add_command(verify)
 cli.add_command(extract)
+cli.add_command(trust)
 
 if __name__ == "__main__":
    cli()
