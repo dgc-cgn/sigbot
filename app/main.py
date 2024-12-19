@@ -265,6 +265,7 @@ async def trust_pdf(request: Request, pdf_url: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
+    
     pem = "ca/root/docsign.pem"
     print(filename,pem)
     try:
@@ -301,13 +302,15 @@ async def trust_pdf(request: Request, pdf_url: str):
                
                 
         except Exception as e:
-            print(f"{e}")
+            trust_msg = "Document could not be verified!"
+            print(f"{e}, {trust_msg}")
 
 
 
     except Exception as e:
+        pass
         
-        return
+        trust_msg = "Document could not be verified!"
 
 
     return templates.TemplateResponse( 
