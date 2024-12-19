@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, HttpUrl
 import httpx
 import os
@@ -191,8 +192,8 @@ async def upload_pdf(request: Request,file: UploadFile = File(...)):
         
         return
 
-    return templates.TemplateResponse( "verified.html", {"request": request, "title": "Welcome Page", "message": out_msg})
-    return {"detail": filename, "sigok": all_sigok, "hashok": all_hashok, "domain": domain, "out_msg": out_msg}
+    return templates.TemplateResponse( "verified.html", {"request": request, "title": "Welcome Page", "message": out_msg, "filename": filename})
+ 
 
 @app.post("/upload-pdf-from-url/")
 async def upload_pdf_from_url(request: PDFUploadRequest):
@@ -314,7 +315,7 @@ async def trust_pdf(request: Request, pdf_url: str):
 
 
     return templates.TemplateResponse( 
-        "trust.html", {"request": request, "title": "Trust Page", "message": trust_msg})
+        "trust.html", {"request": request, "title": "Trust Page", "message": trust_msg, "filename": filename})
 
 
     return {    "detail": filename, 
@@ -324,4 +325,13 @@ async def trust_pdf(request: Request, pdf_url: str):
                 "domain": domain, 
                 "trust_msg": trust_msg}
     
-   
+@app.get("/render-pdf")
+async def render_pdf(pdf_file:str):
+    """
+    Endpoint to render a PDF file in the browser.
+    """
+    file_path = f"{pdf_file}"  # Replace with the path to your PDF file
+    headers = {
+        "Content-Disposition": "inline; filename=file.pdf"  # Render in browser instead of downloading
+    }
+    return FileResponse(file_path, headers=headers, media_type="application/pdf")   
