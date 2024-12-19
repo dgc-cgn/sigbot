@@ -230,3 +230,95 @@ async def upload_pdf_from_url(request: PDFUploadRequest):
         raise HTTPException(status_code=400, detail=f"Failed to download PDF: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+    
+@app.get("/trust", response_class=HTMLResponse)
+async def trust_pdf(request: Request, pdf_url: str):
+    """This is the function that does the full trust evalution
+    1. Is the hash valid?
+    2. Is the signature valid?
+    3. Is the signing public key known?
+    4. (Optional) Is the signing public key authorized?
+    """
+    trust_msg = ""
+    domain = None
+    pdf_url = pdf_url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
+
+    try:
+        # Download the PDF
+        async with httpx.AsyncClient() as client:
+            response = await client.get(pdf_url)
+            response.raise_for_status()
+
+        # Check if the content type indicates a PDF
+        content_type = response.headers.get("Content-Type", "").lower()
+
+
+        # Save the PDF to the local directory
+        filename = os.path.join(UPLOAD_DIR, os.path.basename(pdf_url))
+        with open(filename, "wb") as f:
+            f.write(response.content)
+
+        #return {"message": "PDF successfully uploaded", "filename": filename}
+
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=400, detail=f"Failed to download PDF: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
+    pem = "ca/root/docsign.pem"
+    print(filename,pem)
+    try:
+        all_sigok, all_hashok = pdf_verify(filename,pem)
+        try:
+            for signature in get_pdf_signatures(filename):
+                certificate = signature.certificate
+                # parse_certificate(certificate=certificate)
+                certificate_common_name = certificate.issuer.common_name
+                if is_valid_domain(certificate_common_name):
+                    print("THIS IS A VALID DOMAIN NAME")
+                    domain = certificate_common_name
+                    # click.echo(f"certificate issuer common name: {certificate_common_name}")
+                    public_key_pem = get_pem_public_key_from_certificate(certificate)
+                    # click.echo(f"pem data: {public_key_pem}")
+
+                    # click.echo(f"\nSigning Public Key from Document: \n\n {public_key_pem}")
+                    pubkey_from_url = get_tls_public_key(domain).decode()
+                    # click.echo(f"\nSigning Public Key from Website: {domain} \n\n {pubkey_from_url}")
+                    hex_pubkey = hexlify(pem_string_to_bytes(pubkey_from_url))
+                    if public_key_pem==pubkey_from_url:
+                        pass
+                        trust_msg = f"VERIFIED!!! This document is signed by {domain}.This document CAN BE TRUSTED as being verified by: {domain}!!!"
+                    else:
+                        trust_msg =f"ADVISORY!!! The signed document is NOT verified by {domain}! While this document has been digitally signed and not altered, this document SHOULD NOT BE TRUSTED as being verified by {domain}!!!"
+
+                else:
+                    print("NOT A VALID DOMAIN")
+                   
+                    trust_msg = "Please consult the Adobe Approved Trust List or the EU/EAA Trusted Lists"
+                    
+
+
+               
+                
+        except Exception as e:
+            print(f"{e}")
+
+
+
+    except Exception as e:
+        
+        return
+
+
+    return templates.TemplateResponse( 
+        "trust.html", {"request": request, "title": "Trust Page", "message": trust_msg})
+
+
+    return {    "detail": filename, 
+                "sigok": all_sigok, 
+                "hashok": all_hashok, 
+                "common_name": certificate_common_name,
+                "domain": domain, 
+                "trust_msg": trust_msg}
+    
+   
