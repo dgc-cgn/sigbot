@@ -295,7 +295,7 @@ async def trust_pdf(request: Request, pdf_url: str):
                 else:
                     print("NOT A VALID DOMAIN")
                    
-                    trust_msg = "Please consult the Adobe Approved Trust List or the EU/EAA Trusted Lists"
+                    trust_msg = f"This document has been signed using {certificate_common_name}. Please consult the Adobe Approved Trust List or the EU/EAA Trusted Lists"
                     
 
 
