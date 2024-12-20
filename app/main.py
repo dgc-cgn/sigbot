@@ -192,7 +192,15 @@ async def upload_pdf(request: Request,file: UploadFile = File(...)):
         
         return
 
-    return templates.TemplateResponse( "verified.html", {"request": request, "title": "Welcome Page", "message": out_msg, "filename": filename})
+    return templates.TemplateResponse( 
+                "verified.html", 
+                {   "request": request, 
+                    "title": "Welcome Page", 
+                    "message": out_msg, 
+                    "filename": filename,
+                    "hashok": all_hashok,
+                    "sigok": all_sigok
+                })
  
 
 @app.post("/upload-pdf-from-url/")
@@ -233,7 +241,7 @@ async def upload_pdf_from_url(request: PDFUploadRequest):
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
     
 @app.get("/trust", response_class=HTMLResponse)
-async def trust_pdf(request: Request, pdf_url: str):
+async def trust_pdf(request: Request, pdf_url: str, trustlist:str = None):
     """This is the function that does the full trust evalution
     1. Is the hash valid?
     2. Is the signature valid?
@@ -241,7 +249,7 @@ async def trust_pdf(request: Request, pdf_url: str):
     4. (Optional) Is the signing public key authorized?
     """
     trust_msg = ""
-    domain = None
+    domain = "Certificate Authority Trusted List"
     pdf_url = pdf_url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
 
     try:
@@ -315,7 +323,16 @@ async def trust_pdf(request: Request, pdf_url: str):
 
 
     return templates.TemplateResponse( 
-        "trust.html", {"request": request, "title": "Trust Page", "message": trust_msg, "filename": filename})
+                "trust.html", 
+                {   "request": request, 
+                    "title": "Trust Page", 
+                    "message": trust_msg, 
+                    "filename": filename,
+                    "hashok": all_hashok,
+                    "sigok": all_sigok,
+                    "domain": domain,
+                    "trustlist": trustlist
+                })
 
 
     return {    "detail": filename, 

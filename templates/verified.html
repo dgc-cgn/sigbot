@@ -40,5 +40,40 @@
         crossorigin="anonymous">
     </script>
 <iframe src="/render-pdf?pdf_file={{ filename }}" width="100%" height="600px" style="border:none;"></iframe>
+<hr style="border: 2px solid black; width: 50%;">
+<center>
+<h2>Verification Details</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Verification Stem</th>
+            <th>Result</th>
+         
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Content OK</td>
+            <td>{{ hashok }}</td>
+           
+        </tr>
+        <tr>
+            <td>Signature OK</td>
+            <td>{{ sigok }}</td>
+           
+        </tr>
+        <tr>
+            <td>Domain OK</td>
+            <td>Authorization OK</td>
+           
+        </tr>
+        <tr>
+            <td>Authorized</td>
+            <td>TBI</td>
+           
+        </tr>
+    </tbody>
+</table>
+</center>
 </body>
 </html>

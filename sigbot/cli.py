@@ -6,7 +6,9 @@ from utils.helpers import   (get_tls_public_key,
                             pdf_sign, pdf_verify, 
                             pdf_verify_with_domain, 
                             extract_signatures_and_public_keys,
-                            is_valid_domain
+                            is_valid_domain,
+                            read_trust_list,
+                            is_authorized
                             
                             )
 
@@ -116,18 +118,21 @@ def extract(pdf):
     out = extract_signatures_and_public_keys(pdf)
     
 
-@click.command("trust", help="Trust pdf file")
-@click.argument('pdf', default="data/doc-signed.pdf")
+@click.command("trustlist", help="Trust pdf file")
+@click.argument('trust_list_file', default="trustlists/authorized.jsonl")
+@click.option('--domain','-d', default="trustroot.ca")
+@click.option('--grant','-g', default="issuer")
 
-def trust(pdf): 
-    click.echo(f"trust {pdf}")   
+def trust_list(trust_list_file, domain, grant): 
+    authorized = is_authorized(trust_list_file,domain, grant)
+    click.echo(f"trustlist {authorized}")   
 
 cli.add_command(info)
 cli.add_command(pubkey)
 cli.add_command(sign)
 cli.add_command(verify)
 cli.add_command(extract)
-cli.add_command(trust)
+cli.add_command(trust_list)
 
 if __name__ == "__main__":
    cli()
