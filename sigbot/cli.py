@@ -20,7 +20,7 @@ from utils.getpdfsignatures import(get_pdf_signatures,
                             )
 
 from binascii import hexlify
-import logging
+import logging, asyncio
 logger = logging.getLogger("Utils")
 logger.setLevel(logging.DEBUG)  
 # Configure the logger's handler and format
@@ -118,21 +118,22 @@ def extract(pdf):
     out = extract_signatures_and_public_keys(pdf)
     
 
-@click.command("trustlist", help="Trust pdf file")
+@click.command("authorized", help="Trust pdf file")
 @click.argument('trust_list_file', default="trustlists/authorized.jsonl")
 @click.option('--domain','-d', default="trustroot.ca")
 @click.option('--grant','-g', default="issuer")
 
-def trust_list(trust_list_file, domain, grant): 
-    authorized = is_authorized(trust_list_file,domain, grant)
-    click.echo(f"trustlist {authorized}")   
+def authorized(trust_list_file, domain, grant): 
+    auth_check = asyncio.run(is_authorized(trust_list_file,domain, grant))
+    fg = "green" if auth_check else "red"
+    click.echo(click.style(f"{domain} authorized via {trust_list_file} trustlist for {grant}: {auth_check}",fg=fg, bold=True))   
 
 cli.add_command(info)
 cli.add_command(pubkey)
 cli.add_command(sign)
 cli.add_command(verify)
 cli.add_command(extract)
-cli.add_command(trust_list)
+cli.add_command(authorized)
 
 if __name__ == "__main__":
    cli()

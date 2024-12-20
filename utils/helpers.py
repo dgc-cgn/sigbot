@@ -1,5 +1,7 @@
-import ssl, sys, io, re
+import ssl, sys, io, re, os
 import socket, jsonlines
+import httpx
+from urllib.parse import urlparse
 from cryptography.x509 import load_der_x509_certificate
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from cryptography.hazmat import backends
@@ -29,7 +31,7 @@ if not logger.hasHandlers():
         
 logger.info(f"Function initialized")
 
-
+UPLOAD_DIR = "uploads"
 
 def is_valid_domain(domain):
     """
@@ -405,8 +407,46 @@ def read_trust_list(trust_list_file):
             print(record)
     return reader
 
-def is_authorized(trust_list_file, domain, grant):
+async def is_authorized(trust_list_file, domain, grant):
     authorized = False
+
+    try:
+        parsed_url = urlparse(trust_list_file)
+        if not parsed_url.scheme or not parsed_url.netloc:
+            print("this is a file")
+
+
+        else:
+            print("this is a url")
+            trust_list_url = fix_url(trust_list_file)
+            
+            try:
+                # Download the PDF
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(trust_list_url)
+                    response.raise_for_status()
+
+                # Check if the content type indicates a PDF
+                content_type = response.headers.get("Content-Type", "").lower()
+
+
+                # Save the PDF to the local directory
+                filename = os.path.join(UPLOAD_DIR, os.path.basename(trust_list_file))
+                with open(filename, "wb") as f:
+                    f.write(response.content)
+            except httpx.HTTPError as e:
+                raise ValueError(status_code=400, detail=f"Failed to download PDF: {str(e)}")
+            except Exception as e:
+                raise ValueError(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+            
+
+            trust_list_file = filename
+            
+    except Exception as e:
+        pass
+        return False
+    
+    print(trust_list_file)
     with jsonlines.open(trust_list_file) as reader:
         for each in reader:
             if each['domain'] == domain:

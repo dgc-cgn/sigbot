@@ -45,7 +45,7 @@
 <table border="1">
     <thead>
         <tr>
-            <th>Verification Stem</th>
+            <th>Verification Step</th>
             <th>Result</th>
          
         </tr>
@@ -62,14 +62,23 @@
            
         </tr>
         <tr>
-            <td>Domain OK</td>
-            <td>Authorization OK</td>
+            <td>Originating Domain</td>
+            <td>{{domain}}</td>
            
         </tr>
         <tr>
-            <td>Authorized</td>
-            <td>{{ trustlist }}</td>
+            <td>Trustlist</td>
+            <td><a href="{{ trustlist }}">{{ trustlist }}</a></td>
            
+        </tr>
+        <tr>
+            <td>Authorized Grant</td>
+            <td>{{ grant }}</td>
+           
+        </tr>
+        <tr>
+            <td>Authorized</td> 
+            <td> {{authorized}}   </td>
         </tr>
     </tbody>
 </table>
