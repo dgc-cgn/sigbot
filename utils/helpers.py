@@ -1,5 +1,5 @@
 import ssl, sys, io, re
-import socket
+import socket, jsonlines
 from cryptography.x509 import load_der_x509_certificate
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from cryptography.hazmat import backends
@@ -49,6 +49,12 @@ def is_valid_domain(domain):
     )
 
     return bool(domain_regex.match(domain))
+
+def fix_url(url):
+    """This is to fix github urls"""
+    url = url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
+
+    return url
 
 def get_tls_public_key(url, port=443):
     # Create an SSL context
@@ -392,3 +398,22 @@ def trust_pdf(pdf: str):
     3. Is the public key trusted?
     4. (Optional) Is the public key authorized?
     """
+
+def read_trust_list(trust_list_file):
+    with jsonlines.open(trust_list_file) as reader:
+        for record in reader:
+            print(record)
+    return reader
+
+def is_authorized(trust_list_file, domain, grant):
+    authorized = False
+    with jsonlines.open(trust_list_file) as reader:
+        for each in reader:
+            if each['domain'] == domain:
+                for each_grant in each['grants']:
+                    if each_grant == grant:
+                        authorized = True
+                        break
+    
+
+    return authorized

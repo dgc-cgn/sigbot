@@ -17,7 +17,9 @@ from utils.helpers import   (get_tls_public_key,
                             pdf_sign, pdf_verify, 
                             pdf_verify_with_domain, 
                             extract_signatures_and_public_keys,
-                            is_valid_domain
+                            is_valid_domain,
+                            is_authorized,
+                            fix_url
                             
                             )
 
