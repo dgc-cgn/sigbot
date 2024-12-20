@@ -6,6 +6,7 @@ ca/root/privkey.pem
 ca/root-copy/*
 .DS_Store/*
 uploads/*
+~$*
 
 # C extensions
 *.so
