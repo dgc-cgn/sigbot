@@ -1,2 +1,3 @@
 {"domain": "openproof.org", "valid_from": "2024-12-19T10:30:00Z", "valid_to": "2025-12-19T10:30:00Z", "grants": ["issuer"]}
 {"domain": "trustroot.ca", "valid_from": "2024-12-19T10:30:00Z", "valid_to": "2025-12-19T10:30:00Z", "grants": ["issuer","notary"]}
+{"domain": "dgc.trustroot.ca", "valid_from": "2024-12-19T10:30:00Z", "valid_to": "2025-12-19T10:30:00Z", "grants": ["issuer"]}

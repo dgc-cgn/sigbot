@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, HttpUrl
 import httpx
-import os
+import os, asyncio
 from binascii import hexlify
 
 from utils.helpers import   (get_tls_public_key, 
@@ -243,7 +243,7 @@ async def upload_pdf_from_url(request: PDFUploadRequest):
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
     
 @app.get("/trust", response_class=HTMLResponse)
-async def trust_pdf(request: Request, pdf_url: str, trustlist:str = None):
+async def trust_pdf(request: Request, pdf_url: str, trustlist: str = None, grant: str = "issuer"):
     """This is the function that does the full trust evalution
     1. Is the hash valid?
     2. Is the signature valid?
@@ -323,6 +323,14 @@ async def trust_pdf(request: Request, pdf_url: str, trustlist:str = None):
         
         trust_msg = "Document could not be verified!"
 
+    # Now check the trustlist
+    if trustlist:
+        pass
+    else:
+        trustlist = "No trustlist provided"
+        
+    print(f"trustlist: {trustlist}")
+    auth_check = await is_authorized(trustlist,domain, grant)
 
     return templates.TemplateResponse( 
                 "trust.html", 
@@ -333,7 +341,9 @@ async def trust_pdf(request: Request, pdf_url: str, trustlist:str = None):
                     "hashok": all_hashok,
                     "sigok": all_sigok,
                     "domain": domain,
-                    "trustlist": trustlist
+                    "trustlist": trustlist,
+                    "grant": grant,
+                    "authorized": auth_check
                 })
 
 
