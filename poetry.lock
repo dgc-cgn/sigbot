@@ -417,8 +417,9 @@ version = "2.17.3"
 description = "Library for digital signing and verification of digital signatures in mail, PDF and XML documents."
 optional = false
 python-versions = "*"
-files = []
-develop = false
+files = [
+    {file = "endesive-2.17.3-py3-none-any.whl", hash = "sha256:d3780ce18d5e5ba273612dfa513c0700a4b4458aa9c6762a9220b6b3da84f7c7"},
+]
 
 [package.dependencies]
 asn1crypto = "*"
@@ -432,10 +433,6 @@ Pillow = "*"
 pykcs11 = "*"
 pytz = "*"
 requests = "*"
-
-[package.source]
-type = "directory"
-url = "addons/endesive"
 
 [[package]]
 name = "exceptiongroup"
@@ -1626,4 +1623,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.4"
-content-hash = "b492a26a30f651d08973fc0220212c065d4c8ff84fd82a75e30c44dbfdc6ca8f"
+content-hash = "608a5ec3b5192816e00411738f8f8d205be33d132fe055198c0417ba06b1e7cd"
