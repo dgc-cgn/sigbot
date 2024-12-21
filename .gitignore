@@ -7,6 +7,9 @@ ca/root-copy/*
 .DS_Store/*
 uploads/*
 ~$*
+ca/dgc 
+ca/trustroot 
+
 
 # C extensions
 *.so
