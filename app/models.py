@@ -1,0 +1,1 @@
+REDIR_PREFIX = "/r"

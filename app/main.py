@@ -5,10 +5,12 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 import httpx
 import os, asyncio
 from binascii import hexlify
+from app.routers import shorten
 
 from utils.helpers import   (get_tls_public_key, 
                              get_tls_certificate,
@@ -28,8 +30,23 @@ from utils.getpdfsignatures import(get_pdf_signatures,
                                    get_pem_public_key_from_certificate
                             
                             )
+
+from app.models import REDIR_PREFIX
+
 # Initialize the FastAPI application
+origins = ["*"]
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+
+app.include_router(shorten.router, prefix=REDIR_PREFIX) 
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/trustlists", StaticFiles(directory="trustlists"), name="trustlists")
@@ -363,4 +380,6 @@ async def render_pdf(pdf_file:str):
     headers = {
         "Content-Disposition": "inline; filename=file.pdf"  # Render in browser instead of downloading
     }
-    return FileResponse(file_path, headers=headers, media_type="application/pdf")   
+    return FileResponse(file_path, headers=headers, media_type="application/pdf") 
+
+ 
