@@ -250,7 +250,7 @@ async def trust_pdf(request: Request, pdf_url: str, trustlist: str = None, grant
     3. Is the signing public key known?
     4. (Optional) Is the signing public key authorized?
     """
-    trust_msg = ""
+    trust_msg = "WARNING!!! This document could not be verified!"
     domain = "Certificate Authority Trusted List"
     pdf_url = pdf_url.replace("https://github.com","https://raw.githubusercontent.com").replace("/blob","")
 
