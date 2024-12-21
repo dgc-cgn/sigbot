@@ -435,7 +435,7 @@ requests = "*"
 
 [package.source]
 type = "directory"
-url = "libs/endesive"
+url = "addons/endesive"
 
 [[package]]
 name = "exceptiongroup"
@@ -1626,4 +1626,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.4"
-content-hash = "0d897182cc176a22bee5dd40231152d5b2496c6ef9413667663597b0ef0b1c6b"
+content-hash = "b492a26a30f651d08973fc0220212c065d4c8ff84fd82a75e30c44dbfdc6ca8f"
