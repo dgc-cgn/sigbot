@@ -35,7 +35,7 @@ async def shorten(request: Request, url_to_shorten: URLRequest):
     url_mapping[short_code] = long_url
 
     # Here we assume your FastAPI app is running at "http://localhost:8000"
-    request_base_url = request.base_url.replace("http","https")
+    request_base_url = str(request.base_url).replace("http","https")
     redir_prefix = REDIR_PREFIX.replace("/","")
     short_url = f"{request_base_url}{redir_prefix}/{short_code}"
     return {"short_url": short_url, "long_url": long_url}
