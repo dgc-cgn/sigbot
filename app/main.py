@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, HttpUrl
 import httpx
+
 import os, asyncio
 from binascii import hexlify
 from app.routers import shorten
@@ -31,7 +32,9 @@ from utils.getpdfsignatures import(get_pdf_signatures,
                             
                             )
 
-from app.models import REDIR_PREFIX
+from app.models import REDIR_PREFIX, Settings
+
+settings = Settings()
 
 # Initialize the FastAPI application
 origins = ["*"]
@@ -59,6 +62,8 @@ class PDFUploadRequest(BaseModel):
 # Directory to save uploaded PDFs
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
 
 # Define a root endpoint
 @app.get("/",response_class=HTMLResponse)

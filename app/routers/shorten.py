@@ -5,12 +5,16 @@ from starlette.responses import StreamingResponse
 from pydantic import BaseModel
 import random
 import string
-from app.models import REDIR_PREFIX
+import redis
+from app.models import REDIR_PREFIX, Settings
+
+settings = Settings()
 
 class URLRequest(BaseModel):
     long_url: str
 
 url_mapping = {}
+redis_server = redis.Redis(settings.REDIS_SERVER)
 
 def generate_short_code(length: int = 12) -> str:
     """Generate a simple random short code of given length."""
@@ -31,8 +35,9 @@ async def shorten(request: Request, url_to_shorten: URLRequest):
         short_code = generate_short_code()
         if short_code not in url_mapping:
             break
-    
-    url_mapping[short_code] = long_url
+    redis_server.set(short_code,long_url)
+    print(redis_server.get(short_code).decode())
+    # url_mapping[short_code] = long_url
 
     # Here we assume your FastAPI app is running at "http://localhost:8000"
     request_base_url = str(request.base_url).replace("http","https")
@@ -42,9 +47,11 @@ async def shorten(request: Request, url_to_shorten: URLRequest):
 
 @router.get("/{short_code}")
 def redirect_to_long(short_code: str):
-    if short_code not in url_mapping:
-        raise HTTPException(status_code=404, detail="Short URL not found")
-    long_url = url_mapping[short_code]
+    # if short_code not in url_mapping:
+    #    raise HTTPException(status_code=404, detail="Short URL not found")
+    long_url = redis_server.get(short_code).decode()
     print(long_url)
+    # long_url = url_mapping[short_code]
+    
     return RedirectResponse(url=long_url, status_code=307)
    
