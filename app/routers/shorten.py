@@ -12,6 +12,7 @@ settings = Settings()
 
 class URLRequest(BaseModel):
     long_url: str
+    base_domain: str = "trustroot.ca"
 
 url_mapping = {}
 redis_server = redis.Redis(settings.REDIS_SERVER)
@@ -41,17 +42,26 @@ async def shorten(request: Request, url_to_shorten: URLRequest):
 
     # Here we assume your FastAPI app is running at "http://localhost:8000"
     request_base_url = str(request.base_url).replace("http","https")
-    redir_prefix = REDIR_PREFIX.replace("/","")
-    short_url = f"{request_base_url}{redir_prefix}/{short_code}"
+    
+    short_url = f"https://{url_to_shorten.base_domain}{REDIR_PREFIX}/{short_code}"
     return {"short_url": short_url, "long_url": long_url}
 
 @router.get("/{short_code}")
-def redirect_to_long(short_code: str):
+def redirect_to_long(request: Request, short_code: str):
     # if short_code not in url_mapping:
     #    raise HTTPException(status_code=404, detail="Short URL not found")
-    long_url = redis_server.get(short_code).decode()
-    print(long_url)
-    # long_url = url_mapping[short_code]
+    try:
+        long_url = redis_server.get(short_code).decode()
+        print(long_url)
+        # long_url = url_mapping[short_code]
+        return RedirectResponse(url=long_url, status_code=307)
+    except:
+        # long_url =f"/{REDIR_PREFIX}/whoops"
+        raise HTTPException(status_code=404, detail="Short URL not found")
+        
     
-    return RedirectResponse(url=long_url, status_code=307)
+    return {"detail": "not found"}
    
+@router.get("/whoops")
+def get_whoops(request: Request):
+    return {"detail": "whoops"}
