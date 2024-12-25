@@ -61,11 +61,12 @@ def pubkey(url):
 
 @click.command(help="Sign pdf file")
 @click.argument('pdf', default="data/doc.pdf")
+@click.option('--domain','-d', default="trustroot.ca")
 @click.option('--p12','-p', default="ca/root/docsign.p12")
-def sign(pdf, p12):
+def sign(pdf, p12, domain):
     password = click.prompt("Password?")
     click.echo(f"sign {pdf} {password} {p12}")
-    msg_out = pdf_sign(pdf,p12,password)
+    msg_out = pdf_sign(pdf,p12,domain, password)
 
 @click.command(help="Verify pdf file")
 @click.argument('pdf', default="data/doc-signed.pdf")

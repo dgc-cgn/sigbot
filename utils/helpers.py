@@ -1,6 +1,8 @@
 import ssl, sys, io, re, os
 import socket, jsonlines
-import httpx
+import httpx, qrcode, reportlab
+from reportlab.pdfgen import canvas
+from io import BytesIO
 from urllib.parse import urlparse
 from cryptography.x509 import load_der_x509_certificate
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
@@ -10,11 +12,16 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography import x509
 from datetime import datetime, timedelta
 from cryptography.hazmat.primitives import hashes 
-from endesive.pdf import cms
+# from endesive.pdf import cms
 from endesive import pdf
+from PyPDF2 import PdfReader, PdfWriter, PdfFileMerger
+from PIL import Image
 from cryptography.x509.oid import NameOID
 from cryptography.x509 import CertificateBuilder
 from cryptography.hazmat.backends import default_backend
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
 
 from cryptography.hazmat.primitives import serialization
 from binascii import hexlify
@@ -153,40 +160,105 @@ def pem_string_to_bytes(pem_string, output_format="DER"):
 
     return public_key_bytes
 
-def pdf_sign(doc_to_sign, p12_to_use,password):
+def pdf_sign(doc_to_sign, p12_to_use, domain, password):
+    # domain = "trustroot.ca"
+    pdf_add_page = doc_to_sign.replace(".pdf","-addpage.pdf")
+    page_index, add_page_file = add_blank_page(doc_to_sign,pdf_add_page)
+    print(f"no of pages: {page_index} {add_page_file}")
+        # Do the image stuff
+    
+    #Generate verification QRCode
+    
+    
+    # Convert the image to a PDF page
+    image_path = "data/qrimage.png"
+    image_pdf_path = "data/sigpage.pdf"
+    image_size = None
+    position = (0,0)
+
+    verification_url = f"https://{domain}"
+    generate_qr_code(verification_url,image_path)
+
+    # Create a canvas
+    c = canvas.Canvas(image_pdf_path,pagesize=A4)
+    width, height = c._pagesize
+    print(width, height)
+    # Add text
+    c.drawString(20, 750, "This is the signature page for a verifiable pdf")
+    # Add an image
+    c.drawImage(image_path, 150, 450, 256,256)
+    # Save the PDF
+    c.save()
+
+    # Open the image PDF
+    image_reader = PdfReader(image_pdf_path)
+    image_page = image_reader.pages[0]
+    print(f"image page size: {image_page.mediabox.width} {image_page.mediabox.height} ")
+
+
+    reader = PdfReader(add_page_file)
+    writer = PdfWriter()
+    target_page = reader.pages[page_index]
+    print(f"target page size: {target_page.mediabox.width} {target_page.mediabox.height} ")
+    
+    # Specify the position of the image on the target page
+    
+    x_left = (target_page.mediabox.width - image_page.mediabox.width) / 2
+    y_bottom = (target_page.mediabox.height - image_page.mediabox.height) / 2
+
+    print(f"x_left {x_left} y_bottom {y_bottom}")
+    position_lower_left = (0,0)
+    position_upper_right = (position[0]+ image_page.mediabox.width,position[1]+image_page.mediabox.height)
+    image_page.mediabox.lower_left = position_lower_left
+    image_page.mediabox.upper_right = position_upper_right
+    
+    
+    target_page.merge_page(image_page)
+        # Add all pages back into the writer
+    for page in reader.pages:
+        writer.add_page(page)
+
+        # Save the output PDF
+    with open(add_page_file, "wb") as f:
+        writer.write(f)
+    
     date = datetime.utcnow()
     date = date.strftime("D:%Y%m%d%H%M%S+00'00'")
     dct = {
         "aligned": 8192,
         "sigflags": 3,
         "sigflagsft": 132,
-        "sigpage": 0,
-        # "sigbutton": True,
-        # "sigfield": "Signature1",
-        # "auto_sigfield": True,
-        # "sigandcertify": True,
-        # "signaturebox": (470, 840, 570, 640),
-        "signature": "Dokument podpisany cyfrowo ąćęłńóśżź",
-        # "signature_img": "signature_test.png",
-        "contact": "contact:mak@trisoft.com.pl",
-        "location": "Szczecin",
+        "sigpage": page_index,
+        "sigbutton": True,
+        "sigfield": "Signature1",
+        "auto_sigfield": True,
+        "sigandcertify": True,
+        "signaturebox": (100, 200, 400, 650),
+        "signature": f"This PDF has been digitally signed by {domain} on {date}. Verify with QR Code below.",
+        "signature_img": "data/qrimg.png",
+        "contact": "info@trustroot.ca",
+        "location": "Canada",
         "signingdate": date,
-        "reason": "Dokument podpisany cyfrowo aą cć eę lł nń oó sś zż zź",
+        "reason": "Verifiable PDF",
         "password": "1234",
     }
     with open(p12_to_use, "rb") as fp:
         p12 = pkcs12.load_key_and_certificates(
             fp.read(), password.encode(), backends.default_backend()
         )
-    fname = doc_to_sign
+    fname = add_page_file
     print(f"fname: {fname}")
 
     datau = open(fname, "rb").read()
-    datas = cms.sign(datau, dct, p12[0], p12[1], p12[2], "sha256")
-    fname = fname.replace(".pdf", "-signed.pdf")
-    with open(fname, "wb") as fp:
+    datas = pdf.cms.sign(datau, dct, p12[0], p12[1], p12[2], "sha256")
+    fname_signed = fname.replace(".pdf", "-signed.pdf").replace("-addpage","")
+    with open(fname_signed, "wb") as fp:
         fp.write(datau)
         fp.write(datas)
+
+    os.remove(fname)
+    # os.remove(image_pdf_path)
+    # os.remove(image_path)
 
 def pdf_verify_with_domain(pdf_to_verify, domain):
 
@@ -457,3 +529,61 @@ async def is_authorized(trust_list_file, domain, grant):
     
 
     return authorized
+
+def add_blank_page(input_pdf_path, output_pdf_path, width=None, height=None):
+    """
+    Reads a PDF, appends a blank page (with optional width/height),
+    and writes out the new PDF to `output_pdf_path`.
+    """
+    # Load existing PDF
+    reader = PdfReader(input_pdf_path)
+    writer = PdfWriter()
+
+
+
+    # Copy all pages from the original PDF
+    for page in reader.pages:
+        writer.add_page(page)
+
+    # If width/height not specified, use size from the first page
+    if width is None or height is None:
+        first_page = reader.pages[0]
+        width = first_page.mediabox.width
+        height = first_page.mediabox.height
+
+    # Add a blank page
+    new_page = writer.add_blank_page(width=width, height=height)
+
+    # Write out the new PDF with the extra blank page
+    with open(output_pdf_path, "wb") as f:
+        writer.write(f)
+
+    
+
+
+    return len(reader.pages),output_pdf_path  # old page count (the new page index is old_page_count)
+
+def generate_qr_code(data, file_path):
+    """
+    Generate a QR code from the given string and save it as a PNG file.
+
+    :param data: The string data to encode in the QR code.
+    :param file_path: The file path to save the QR code image (e.g., 'qrcode.png').
+    """
+    # Create a QR Code object
+    qr = qrcode.QRCode(
+        version=1,  # controls the size of the QR code (1 is smallest)
+        error_correction=qrcode.constants.ERROR_CORRECT_L,  # error correction level
+        box_size=10,  # size of each box in the QR code grid
+        border=4,  # thickness of the border (minimum is 4)
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    # Create the image
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Save the image to the specified file path
+    img.save(file_path)
+    print(f"QR code saved to {file_path}")
+

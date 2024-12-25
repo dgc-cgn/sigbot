@@ -12,7 +12,7 @@ sigbot = "sigbot.cli:cli"
 
 
 [tool.poetry.dependencies]
-python = ">=3.10.4"
+python = ">=3.10.4,<4.0"
 fastapi = "^0.115.5"
 uvicorn = "^0.32.1"
 cryptography = "^43.0.3"
@@ -28,6 +28,10 @@ jsonlines = "^4.0.0"
 endesive = "^2.17.3"
 redis = "^5.2.1"
 pydantic-settings = "^2.7.0"
+pypdf2 = "^3.0.1"
+pillow = "^11.0.0"
+qrcode = "^8.0"
+reportlab = "^4.2.5"
 
 
 [build-system]
