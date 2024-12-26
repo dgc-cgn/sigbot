@@ -2,6 +2,7 @@ import ssl, sys, io, re, os
 import socket, jsonlines
 import httpx, qrcode, reportlab
 from reportlab.pdfgen import canvas
+import requests
 from io import BytesIO
 from urllib.parse import urlparse
 from cryptography.x509 import load_der_x509_certificate
@@ -177,6 +178,12 @@ def pdf_sign(doc_to_sign, p12_to_use, domain, password):
     position = (0,0)
 
     verification_url = f"https://{domain}"
+
+    shorten_url = f"https://{domain}/r/shorten"
+    shorten_data = {"long_url": verification_url}
+    response = requests.post(url=shorten_url,json=shorten_data)
+    print(response.json())
+    
     generate_qr_code(verification_url,image_path)
 
     # Create a canvas

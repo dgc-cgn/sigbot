@@ -8,7 +8,7 @@ ca/root-copy/*
 uploads/*
 ~$*
 ca/dgc 
-ca/trustroot 
+ca/trustroot.ca`` 
 
 
 # C extensions
